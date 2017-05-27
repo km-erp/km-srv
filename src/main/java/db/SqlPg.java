@@ -11,23 +11,18 @@ public class SqlPg extends Sql {
 		// TODO Auto-generated constructor stub
 	}
 
-	public int versionDb(){
-		if (tableExists("opt")){
-		  return 0;
-		}
-		return -1;		
-	}
-
 	@Override
 	protected String tctS(TableColType tct) {
 		switch (tct){
 			case Integer: return "integer null";
 			case String: return "character varying(250) null";
 			case Money: return "decimal(30, 4) null";
+      case Bool: return "integer null";
 			
       case IntegerNN: return "integer not null";
       case StringNN: return "character varying(250) not null";
       case MoneyNN: return "decimal(30, 4) not null";
+      case BoolNN: return "integer not null";
 
       case pk: return "bigint not null";
       case fk: return "bigint null";

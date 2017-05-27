@@ -1,42 +1,74 @@
 package db;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.*;
+
+import kmsrv.Consts;
 
 
 public abstract class Sql {
 	
 	protected EntityManager em;
 	
-	protected void sqle(String sql){
-	  em.createNativeQuery(sql).executeUpdate();
+	protected Object param(Object p){
+	  if (p instanceof Boolean){
+	    return (Boolean)p?1:0;
+	  }
+	  return p;
 	}
-  protected void sqle(String sql, Object ...v){
-    Query q = em.createNativeQuery(sql);
+	
+	protected void qParams(Query q, Object[] v){
     int iP = 1;
     
     for (int i = 0; i < v.length; i++){
       if (v[i] instanceof ArrayList){
         ArrayList<?> al = (ArrayList<?>) v[i];
         for (int j = 0; j < al.size(); j ++){
-          q.setParameter(iP, al.get(j));  
+          q.setParameter(iP, param(al.get(j)));  
           iP++;
         }        
       }
       else{
-        q.setParameter(iP, v[i]);
+        q.setParameter(iP, param(v[i]));
         iP++;
       }
     }
+	}
+	
+	protected void sqle(String sql){
+	  em.createNativeQuery(sql).executeUpdate();
+	}
+  protected void sqle(String sql, Object ...v){
+    Query q = em.createNativeQuery(sql);
+    qParams(q, v);
     q.executeUpdate();
   }
+  protected Object sqlr(String sql, Object def, Object ...v){
+    Object r = null;
+    Query q = em.createNativeQuery(sql);
+    qParams(q, v);
+    List<?> l = q.getResultList();
+    
+    if (l.size() > 0){
+      r = l.get(0);
+    }
 
-	public abstract int versionDb();
+    return r == null? def: r;
+  }
+
+  public int versionDb(){
+    if (tableExists("opt")){
+      return (int) sqlr("select vi from opt where k = ?", -1, Consts.optDbVer);
+    }
+    return -1;    
+  }
+
 	
 	public enum TableColType{
-		Integer, String, Money,
-    IntegerNN, StringNN, MoneyNN,
+		Integer, String, Money, Bool,
+    IntegerNN, StringNN, MoneyNN, BoolNN,
 		pk, fk, fkNN
 	}
 	protected abstract String tctS(TableColType tct);
@@ -63,7 +95,7 @@ public abstract class Sql {
 // tables
 	
 	public abstract boolean tableExists(String tn);
-	public void tableCreate(String tn, TableCol[] cols){
+	public void tableCreate(String tn, TableCol ...cols){
 		String sql;
 		
 		if (!tableExists(tn)){
@@ -105,6 +137,9 @@ public abstract class Sql {
 	public void fkCreate(String tn, String ptn, String fk, String col, String pcol){
 	  if (fk == null){
 	    fk = "fk_" + tn + "_" + ptn;
+	    if (col != null){
+	      fk = fk + "_" + col;
+	    }
 	  }
 	  
 	  if (col == null){
@@ -134,9 +169,17 @@ public abstract class Sql {
     fkCreate(tn, ptn, null, null, null);
   }
   
+// sequences
+  protected String seqName(String sq){
+    return sq.toLowerCase();
+  }
+  
+  public void seqCreate(String sq){
+    sqle(String.format("create sequence %s", seqName(sq)));
+  }
+  
  // primary key 
- 
-	public void pkCreate(String tn){
+ public void pkCreate(String tn){
 	  String sql = String.format(
 	    "alter table %s add constraint %s primary key ( %s )",
 	    tableName(tn),
@@ -147,6 +190,9 @@ public abstract class Sql {
 	
 	Sql(EntityManager em){
 		this.em = em;
+	}
+	public long pk(){
+	  return (long) sqlr("select nextval(?)", 1, "pk");
 	}
 	
 // insert record
@@ -160,7 +206,7 @@ public abstract class Sql {
 	      pars = pars + ",?";	      
 	    }	 
 	    else{
-	      vals.add(v[i]);
+        vals.add(v[i]);
 	    }
 	  }
 	  cols = cols.substring(1);

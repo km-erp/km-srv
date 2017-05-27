@@ -37,7 +37,8 @@ public class UpgController extends Std{
   private class Result{
 		public Boolean Auth;
 		public Boolean Requires;
-		public Boolean Upgraded;
+		@SuppressWarnings("unused")
+    public Boolean Upgraded;
 		public Integer VersionDb;
 		public Integer VersionRq;
 	}
@@ -59,13 +60,27 @@ public class UpgController extends Std{
     
     if (r.Auth){
       r.Requires = param.upgCall != null && upgService.versionDb() == param.upgCall - 1;
-      
       if (r.Requires){
         r.Upgraded = upgService.upgDo(param.upgCall);    
-        r.VersionDb = upgService.versionDb();
-        r.VersionRq = upgService.versionRq();
       }
+      r.VersionDb = upgService.versionDb();
+      r.VersionRq = upgService.versionRq();
     }
 		return r;
 	}
+  
+  @RequestMapping(method = RequestMethod.POST, value = "/upgOk")
+  public Result upgOk(@RequestBody Param param) throws Exception{
+    Result r = new Result();
+    r.Auth = as.validate(param.authCode);
+    
+    if (r.Auth){
+      r.Requires = param.upgCall != null && upgService.versionDb() == param.upgCall - 1;
+      r.VersionDb = upgService.versionDb();
+      r.VersionRq = upgService.versionRq();
+      r.Upgraded = r.VersionDb == r.VersionRq;     
+    }
+    return r;
+  }
+  
 }
