@@ -1,4 +1,4 @@
-package kmsrv;
+package srv;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import db.*;
-import db.Sql.*;
+import srv.db.*;
+import srv.db.Sql.*;
 
 
 @Service
@@ -19,18 +19,22 @@ public class UpgService extends Std {
   private Environment env;
 	@PersistenceContext
   private EntityManager em;
+	
+	private void sqlChk() throws Exception{
+    if (sql == null && env.getProperty(Consts.AppPropDBDialect).compareToIgnoreCase(Consts.AppPropDbDialectPG) == 0){
+      sql = new SqlPg(em);
+    }
+    if (sql == null){
+      throw new Exception("Unsupported database");
+    }
+	}
 
 	public int versionDb() throws Exception{
-  	int iResult = sql.versionDb();
-  	
-  	if (iResult != -1){
-  		
-  	}
-  	
-		return iResult;
+  	sqlChk();
+		return sql.versionDb();
 	}
 	public int versionRq(){
-		return 0;
+		return upg.length - 1;
 	}
 	
 	private Sql sql = null;
@@ -40,13 +44,8 @@ public class UpgService extends Std {
     if (upg.length - 1 < iUpg || iUpg < 0){
       return false;
     }
-    
-    if (sql == null && env.getProperty(Consts.AppPropDBDialect).compareToIgnoreCase(Consts.AppPropDbDialectPG) == 0){
-      sql = new SqlPg(em);
-    }
-    if (sql == null){
-      throw new Exception("Unsupported database");
-    }
+
+    sqlChk();
     
     upg[iUpg].upg();
     
@@ -58,7 +57,7 @@ public class UpgService extends Std {
 	interface Upg{void upg() throws Exception;}
 	
 	private Upg[] upg = new Upg[]{
-
+//0
 	  new Upg(){public void upg() throws Exception{
         sql.tableCreate(
           "opt", 
@@ -68,12 +67,12 @@ public class UpgService extends Std {
         sql.recIns("opt", "id", 1, "k", Consts.optDbVer, "vi", -1);
       }
 		},     
-
+//1
     new Upg(){public void upg() throws Exception{
         sql.seqCreate("pk");
       }
     },     
-
+//2
     new Upg(){public void upg() throws Exception{
         sql.tableCreate("firm", sql.tc("firm_name", TableColType.String));
         sql.recIns("firm", "id", 0, "firm_name", "global");
@@ -84,7 +83,7 @@ public class UpgService extends Std {
         sql.fkCreate("opt", "firm");
       }
     },     
-
+//3
     new Upg(){public void upg() throws Exception{
         sql.tableCreate(
           "usrs", 
@@ -99,7 +98,7 @@ public class UpgService extends Std {
         sql.fkCreate("opt", "usrs");
       }
     },     
-    
+//4
     new Upg(){public void upg() throws Exception{
         sql.tableCreate(
           "rgts", 
@@ -108,7 +107,7 @@ public class UpgService extends Std {
         sql.recIns("rgts", "id", 1, "rgt_name", "adm");
       }
     },     
-    
+//5    
     new Upg(){public void upg() throws Exception{
         sql.tableCreate(
           "usrs_grps", 
@@ -118,7 +117,7 @@ public class UpgService extends Std {
         sql.fkCreate("usrs_grps", "usrs", null, "id_grps");
       }
     },     
-    
+//6    
     new Upg(){public void upg() throws Exception{
         sql.tableCreate(
           "usrs_rgts", 
@@ -132,19 +131,19 @@ public class UpgService extends Std {
         sql.recIns("usrs_grps", "id", sql.pk(), "id_usrs", id, "id_usrs");
         sql.recIns("usrs_rgts", "id", sql.pk(), "id_usrs", id, "id_rgts", 1);
       }
-    },     
-    
-    new Upg(){public void upg() throws Exception{
-      }
-    },     
-    
-    new Upg(){public void upg() throws Exception{
-      }
-    },     
-    
-    new Upg(){public void upg() throws Exception{
-      }
-    }	
+    }//,     
+//7    
+//    new Upg(){public void upg() throws Exception{
+//      }
+//    },     
+//8    
+//    new Upg(){public void upg() throws Exception{
+//      }
+//    },     
+//9    
+//    new Upg(){public void upg() throws Exception{
+//      }
+//    }	
     
     
 	};

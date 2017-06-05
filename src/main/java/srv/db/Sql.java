@@ -1,11 +1,11 @@
-package db;
+package srv.db;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.*;
 
-import kmsrv.Consts;
+import srv.Consts;
 
 
 public abstract class Sql {

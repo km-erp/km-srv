@@ -1,4 +1,4 @@
-package db;
+package srv.db.en;
 
 import javax.persistence.*;
 
@@ -7,7 +7,10 @@ import javax.persistence.*;
 public class Opt {
 	@Id 
 	@GeneratedValue
-	public int id;
+	public long id;
+	public long id_firm;
+	public long id_usrs;
+	
 	public String k;
 	public String vs;
 	public String vi;

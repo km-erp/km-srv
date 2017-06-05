@@ -1,4 +1,4 @@
-package db;
+package srv.db;
 
 import java.util.List;
 
