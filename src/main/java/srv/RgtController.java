@@ -1,6 +1,7 @@
 package srv;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +21,7 @@ public class RgtController extends Std {
   RgtService rgtService;
   
   @RequestMapping(method = RequestMethod.POST, value = "rgtChk")
-  public RgtResult rgtChk(RgtParam p) throws Exception{
+  public RgtResult rgtChk(@RequestBody RgtParam p) throws Exception{
     RgtResult r = new RgtResult();
     String usrName = as.usrName(p, r);
     if (r.authorized){
