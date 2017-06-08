@@ -1,11 +1,14 @@
 package srv.db;
 
+
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.*;
 
 import srv.Consts;
+
 
 
 public abstract class Sql {
@@ -71,7 +74,7 @@ public abstract class Sql {
     IntegerNN, StringNN, MoneyNN, BoolNN,
 		pk, fk, fkNN
 	}
-	protected abstract String tctS(TableColType tct);
+	protected abstract String tctS(TableColType tct, boolean nll);
 	public class TableCol{
 		private String cn;
 		private TableColType tct;
@@ -99,9 +102,9 @@ public abstract class Sql {
 		String sql;
 		
 		if (!tableExists(tn)){
-  		sql = "create table " + tableName(tn) + "(" + colName("id") + " " + tctS(TableColType.pk);
+  		sql = "create table " + tableName(tn) + "(" + colName("id") + " " + tctS(TableColType.pk, true);
   		for (TableCol col: cols){
-  			sql = sql + "," + col.cn + " " + tctS(col.tct);
+  			sql = sql + "," + col.cn + " " + tctS(col.tct, true);
   		}
   		sql = sql + ")";
   		sqle(sql);
@@ -121,16 +124,29 @@ public abstract class Sql {
      "alter table %s add %s %s", 
      tableName(tn),
      tc.cn,
-     tctS(tc.tct));	  
+     tctS(tc.tct, true));	  
 	  sqle(sql);
 	}
   public void colModify(String tn, TableCol tc){
     String sql = String.format(
-     "alter table %s modify %s %s", 
+     "alter table %s alter %s type %s", 
      tableName(tn),
      tc.cn,
-     tctS(tc.tct));   
+     tctS(tc.tct, false));   
     sqle(sql);
+    
+    if (
+        tc.tct==TableColType.IntegerNN || 
+        tc.tct==TableColType.StringNN || 
+        tc.tct==TableColType.MoneyNN || 
+        tc.tct==TableColType.BoolNN ||
+        tc.tct==TableColType.pk ||
+        tc.tct==TableColType.fkNN){      
+      sqle(String.format("alter table %s alter %s set not null", tableName(tn), tc.cn));    
+    }
+    else{
+      sqle(String.format("alter table %s alter %s drop not null", tableName(tn), tc.cn));    
+    }
   }	
 // foreign keys
 	
@@ -192,7 +208,7 @@ public abstract class Sql {
 		this.em = em;
 	}
 	public long pk(){
-	  return (long) sqlr("select nextval(?)", 1, "pk");
+	  return ((BigInteger) sqlr("select nextval(?)", 1, "pk")).longValue();
 	}
 	
 // insert record
@@ -230,7 +246,7 @@ public abstract class Sql {
 	  }
 	  
 	  String keys = "";
-	  for (int i = 0; i < v.length; i++){
+	  for (int i = 0; i < k.length; i++){
       if (i % 2 == 0){ //even
         keys = keys + (keys.length() == 0 ? "where ": " and") + colName(k[i].toString()) + " = ? ";        
       }
@@ -244,6 +260,5 @@ public abstract class Sql {
 	}
   public void recUpd(String tn, Object[] v){
     recUpd(tn, v, new Object[]{});
-  }
-    
+  }   
 }

@@ -128,7 +128,7 @@ public class UpgService extends Std {
 
         Long id = sql.pk();
         sql.recIns("usrs", "id", id, "usr_name", env.getProperty(Consts.AppPropMasterUser).toString(), "is_grp", false);
-        sql.recIns("usrs_grps", "id", sql.pk(), "id_usrs", id, "id_usrs");
+        sql.recIns("usrs_grps", "id", sql.pk(), "id_usrs", id, "id_grps", id);
         sql.recIns("usrs_rgts", "id", sql.pk(), "id_usrs", id, "id_rgts", 1);
       }
     }//,     

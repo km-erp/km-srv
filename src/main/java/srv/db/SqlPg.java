@@ -12,21 +12,21 @@ public class SqlPg extends Sql {
 	}
 
 	@Override
-	protected String tctS(TableColType tct) {
+	protected String tctS(TableColType tct, boolean nll) {
 		switch (tct){
-			case Integer: return "integer null";
-			case String: return "character varying(250) null";
-			case Money: return "decimal(30, 4) null";
-      case Bool: return "integer null";
+			case Integer: return "integer" + (nll? " null": "");
+			case String: return "character varying(250)" + (nll? " null": "");
+			case Money: return "decimal(30, 4)" + (nll? " null": "");
+      case Bool: return "integer" + (nll? " null": "");
 			
-      case IntegerNN: return "integer not null";
-      case StringNN: return "character varying(250) not null";
-      case MoneyNN: return "decimal(30, 4) not null";
-      case BoolNN: return "integer not null";
+      case IntegerNN: return "integer" + (nll? " not null": "");
+      case StringNN: return "character varying(250)" + (nll? " not null": "");
+      case MoneyNN: return "decimal(30, 4)" + (nll? " not null": "");
+      case BoolNN: return "integer" + (nll? " not null": "");
 
-      case pk: return "bigint not null";
-      case fk: return "bigint null";
-      case fkNN: return "bigint not null";
+      case pk: return "bigint" + (nll? " not null": "");
+      case fk: return "bigint" + (nll? " null": "");
+      case fkNN: return "bigint" + (nll? " not null": "");
 			
 			default: return null;		
 		}		
