@@ -9,7 +9,7 @@ public class UsrsRgts {
   @GeneratedValue
   public long id;
   @Column(name = "id_usrs")
-  public long idUsrs;
+  public Long idUsrs;
   @Column(name = "id_rgts")
-  public long idRgts;
+  public Long idRgts;
 }

@@ -27,19 +27,19 @@ public class RgtService extends Std {
       return true;
     }
     
-    List<Rgts> r = rgtsRepo.findByRgtName(rgtName);
-    if (r.size() != 1){
+    Rgts r = rgtsRepo.findFirstByRgtName(rgtName);
+    if (r == null){
       return false;
     }
-    List<Usrs> u = usrsRepo.findByUsrName(usrName);
-    if (r.size() != 1){
+    Usrs u = usrsRepo.findFirstByUsrName(usrName);
+    if (u == null){
       return false;
     }
     
-    List<UsrsGrps>ug = usrsGrpsRepo.findByIdUsrs(u.get(0).id);
+    List<UsrsGrps>ug = usrsGrpsRepo.findByIdUsrs(u.id);
 
     return ug.stream()
-      .filter(ug1 -> usrsRgtsRepo.findByIdUsrsAndIdRgts(ug1.idGrps, r.get(0).id).size() > 0)
+      .filter(ug1 -> usrsRgtsRepo.findByIdUsrsAndIdRgts(ug1.idGrps, r.id).size() > 0)
       .count() > 0;
   }
 

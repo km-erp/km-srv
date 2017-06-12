@@ -185,6 +185,18 @@ public abstract class Sql {
     fkCreate(tn, ptn, null, null, null);
   }
   
+//unique
+  public void uniqueCreate(String tn, String cn, String ...cns){
+    String sqlCn = cn;
+    String sqlCo = "u_" + tn + "_" + cn;
+    for(String s: cns){
+      sqlCn = sqlCn + "," + s;
+      sqlCo = sqlCo + "_" + s;
+    }
+    
+    sqle(String.format("alter table %s add constraint %s unique (%s)", tn, sqlCo, sqlCn));
+  }
+  
 // sequences
   protected String seqName(String sq){
     return sq.toLowerCase();

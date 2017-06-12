@@ -6,8 +6,9 @@ import javax.persistence.*;
 @Table(name = "rgts")
 public class Rgts {
   @Id 
-  public long id;
-  public long id_rgts;
+  public Long id;
+  @Column(name = "id_rgt")
+  public Long idRgt;
   @Column(name = "rgt_name")
   public String rgtName;
 }

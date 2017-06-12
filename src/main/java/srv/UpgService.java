@@ -131,15 +131,22 @@ public class UpgService extends Std {
         sql.recIns("usrs_grps", "id", sql.pk(), "id_usrs", id, "id_grps", id);
         sql.recIns("usrs_rgts", "id", sql.pk(), "id_usrs", id, "id_rgts", 1);
       }
-    }//,     
+    },     
 //7    
-//    new Upg(){public void upg() throws Exception{
-//      }
-//    },     
+    new Upg(){public void upg() throws Exception{
+        sql.uniqueCreate("firm", "firm_name");
+      }
+    },     
 //8    
-//    new Upg(){public void upg() throws Exception{
-//      }
-//    },     
+    new Upg(){public void upg() throws Exception{
+        sql.tableCreate(
+          "firm_usrs",
+           sql.tc("id_usrs", TableColType.fkNN),
+           sql.tc("id_firm", TableColType.fkNN));
+        
+        sql.recIns("firm_usrs", "id", sql.pk(), "id_usrs", 0, "id_firm", 0);
+      }
+    },     
 //9    
 //    new Upg(){public void upg() throws Exception{
 //      }

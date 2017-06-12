@@ -10,7 +10,7 @@ public class Usrs {
   public long id;
   @Column(name = "usr_name")
   public String usrName;
-  public boolean is_grp;
+  public Boolean is_grp;
   
 
 }

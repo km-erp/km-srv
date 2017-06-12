@@ -8,8 +8,8 @@ public class Opt {
 	@Id 
 	@GeneratedValue
 	public long id;
-	public long id_firm;
-	public long id_usrs;
+	public Long id_firm;
+	public Long id_usrs;
 	
 	public String k;
 	public String vs;
